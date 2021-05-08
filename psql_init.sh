@@ -1,3 +1,4 @@
+#!/usr/bin/zsh
 set -x
 
 DB_USER=${POSTGRES_USER:=postgres}
@@ -27,3 +28,4 @@ export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${
 
 # Using sqlx cli to create the databse given the specified DATABASE_URL env variable
 sqlx database create
+sqlx migrate run
