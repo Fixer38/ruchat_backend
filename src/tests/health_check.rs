@@ -2,6 +2,7 @@ use std::net::TcpListener;
 use crate::run::run;
 use sqlx::PgPool;
 use crate::configuration::get_config;
+use uuid::Uuid;
 
 pub struct TestApp {
     pub address: String,
@@ -13,7 +14,8 @@ async fn spawn_app() -> TestApp {
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
 
-    let configuration = get_config().expect("Failed to read config");
+    let mut configuration = get_config().expect("Failed to read config");
+    configuration.database.database_name = Uuid::new_v4().to_string();
     let connection_pool = PgPool::connect(&configuration.database.connection_string())
         .await
         .expect("Failed to start the postgres instance");
