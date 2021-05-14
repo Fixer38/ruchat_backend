@@ -1256,6 +1256,8 @@ dependencies = [
  "config",
  "serde 1.0.125",
  "sqlx",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]
