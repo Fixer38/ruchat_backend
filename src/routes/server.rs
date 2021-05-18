@@ -1,27 +1,28 @@
-use actix_web::{web, HttpResponse};
-use serde::Deserialize;
-use sqlx::PgPool;
+use actix_web::{web, HttpResponse, Error, error};
 use chrono::Utc;
+use sqlx::PgPool;
+use uuid::Uuid;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct FormData {
     name: String,
 }
 
-pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, HttpResponse> {
+pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     sqlx::query!(
-        r#"
-        INSERT INTO servers (name, created_at)
-        VALUES ($1, $2)
-        "#,
-        form.name,
-        Utc::now()
+    r#"
+    INSERT INTO servers (name, created_at)
+    VALUES ($1, $2)
+    "#,
+    form.name,
+    Utc::now()
     )
         .execute(pool.as_ref())
         .await
         .map_err(|e| {
-            eprintln!("Failed to execute create server query: {}", e);
-            HttpResponse::InternalServerError().finish()
+            println!("Failed to execute query: {}", e);
+            error::ErrorInternalServerError("Error From Server when executing Request")
         })?;
     Ok(HttpResponse::Ok().finish())
 }
