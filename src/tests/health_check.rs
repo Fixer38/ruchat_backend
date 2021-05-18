@@ -2,6 +2,7 @@ use std::net::TcpListener;
 use crate::run::run;
 use sqlx::{PgPool, PgConnection, Connection, Executor};
 use crate::configuration::{get_config, DatabaseSettings};
+use std::collections::HashMap;
 
 pub struct TestApp {
     pub address: String,
@@ -57,6 +58,25 @@ async fn health_check_works() {
         .send()
         .await
         .expect("Failed to send request to health_check route");
+
+    assert!(response.status().is_success());
+    assert_eq!(Some(0), response.content_length());
+}
+
+#[actix_rt::test]
+async fn create_server_route() {
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+
+    let mut json_arg = HashMap::new();
+    json_arg.insert("name", "Test Server By Request");
+
+    let response = client
+        .post(&format!("{}/server/create", &app.address))
+        .json(&json_arg)
+        .send()
+        .await
+        .expect("Failed to send request to create/server route");
 
     assert!(response.status().is_success());
     assert_eq!(Some(0), response.content_length());
