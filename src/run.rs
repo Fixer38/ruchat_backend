@@ -10,7 +10,7 @@ pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Er
     let server = HttpServer::new(move || {
         App::new()
             .route("/health_check", web::get().to(health_check))
-            .route("/create", web::post().to(create))
+            .route("/server/create", web::post().to(create))
             .app_data(db_pool.clone())
     })
         .listen(listener)?
