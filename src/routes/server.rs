@@ -1,23 +1,23 @@
-use actix_web::{web, App, HttpResponse};
+use actix_web::{web, HttpResponse};
 use serde::Deserialize;
 use sqlx::PgPool;
 use chrono::Utc;
 
 #[derive(Deserialize)]
-pub struct Info {
+pub struct FormData {
     name: String,
 }
 
-pub async fn create(info: web::Json<Info>, pool: web::Data<PgPool>) -> Result<HttpResponse, HttpResponse>{
+pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, HttpResponse> {
     sqlx::query!(
         r#"
         INSERT INTO servers (name, created_at)
         VALUES ($1, $2)
         "#,
-        info.name,
+        form.name,
         Utc::now()
     )
-        .execute(pool.get_ref())
+        .execute(pool.as_ref())
         .await
         .map_err(|e| {
             eprintln!("Failed to execute create server query: {}", e);
