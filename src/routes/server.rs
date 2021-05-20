@@ -10,7 +10,7 @@ pub struct FormData {
 }
 
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
-    log::info!("Saving new server details in the database");
+    log::info!("Adding {} as a new server in the database.", form.name);
     sqlx::query!(
     r#"
     INSERT INTO servers (name, created_at)
