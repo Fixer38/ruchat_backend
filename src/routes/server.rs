@@ -10,6 +10,7 @@ pub struct FormData {
 }
 
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    log::info!("Saving new server details in the database");
     sqlx::query!(
     r#"
     INSERT INTO servers (name, created_at)
@@ -21,8 +22,10 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
         .execute(pool.as_ref())
         .await
         .map_err(|e| {
-            println!("Failed to execute query: {}", e);
+            // Using :? Debug format for deeper error messages
+            log::error!("Failed to execute query: {:?}", e);
             error::ErrorInternalServerError("Error From Server when executing Request")
         })?;
+    log::info!("New subscriber details have been saved");
     Ok(HttpResponse::Ok().finish())
 }
