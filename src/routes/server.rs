@@ -11,7 +11,14 @@ pub struct FormData {
 
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     let request_id = Uuid::new_v4();
-    tracing::info!("Request_id {} - Adding {} as a new server in the database.", request_id, form.name);
+    // Info span creates a span at the info level
+    let request_span = tracing::info_span!(
+        "Adding a new Server.",
+        %request_id,
+        name = %form.name
+    );
+    // Enter the request span with a Guard
+    let _request_span = request_span.enter();
     sqlx::query!(
     r#"
     INSERT INTO servers (name, created_at)
