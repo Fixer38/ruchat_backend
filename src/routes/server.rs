@@ -17,7 +17,7 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
         %request_id,
         name = %form.name
     );
-    // Enter the request span with a Guard
+    // Enter the request span returns an instance of Entered = a guard
     let _request_span = request_span.enter();
     sqlx::query!(
     r#"
@@ -34,6 +34,6 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
             tracing::error!("Request_id {} - Failed to execute query: {:?}", request_id, e);
             error::ErrorInternalServerError("Error From Server when executing Request")
         })?;
-    tracing::info!("Request_id {} - New subscriber details have been saved", request_id);
+    tracing::info!("Request_id {} - New server details have been saved", request_id);
     Ok(HttpResponse::Ok().finish())
 }
