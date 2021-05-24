@@ -3,6 +3,7 @@ use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 use serde::Deserialize;
+use tracing_futures::Instrument;
 
 #[derive(Deserialize)]
 pub struct FormData {
@@ -19,6 +20,7 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
     );
     // Enter the request span returns an instance of Entered = a guard
     let _request_span = request_span.enter();
+    let query_span = tracing::info_span!("Adding new Server to the database");
     sqlx::query!(
     r#"
     INSERT INTO servers (name, created_at)
@@ -28,6 +30,7 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
     Utc::now()
     )
         .execute(pool.as_ref())
+        .instrument(query_span)
         .await
         .map_err(|e| {
             // Using :? Debug format for deeper error messages
