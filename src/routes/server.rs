@@ -4,6 +4,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use serde::Deserialize;
 use tracing_futures::Instrument;
+use tracing::subscriber::set_global_default;
+use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
 #[derive(Deserialize)]
 pub struct FormData {
@@ -11,6 +14,25 @@ pub struct FormData {
 }
 
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    // Printing all log spans at info level or above
+    // If RUST_LOG environment variable is not set
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let formatting_layer = BunyanFormattingLayer::new(
+        "ruchat_backend".into(),
+        // Output formatted spans to stdout of terminal
+        std::io::stdout
+    );
+
+    // 'With' method provided provided by 'SubscriberExt', extension trait of Subscriber
+    // Given by 'tracing_subscriber'
+    let subscriber = Registry::default()
+        .with(env_filter)
+        .with(JsonStorageLayer)
+        .with(formatting_layer);
+
+    set_global_default(subscriber).expect("Failed to set Subscriber for log spans");
+
     let request_id = Uuid::new_v4();
     // Info span creates a span at the info level
     let request_span = tracing::info_span!(
