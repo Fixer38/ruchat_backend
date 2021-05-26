@@ -7,6 +7,7 @@ use tracing_futures::Instrument;
 use tracing::subscriber::set_global_default;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
+use tracing_log::LogTracer;
 
 #[derive(Deserialize)]
 pub struct FormData {
@@ -14,6 +15,9 @@ pub struct FormData {
 }
 
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    // Redirect Actix logs events to the Subscriber
+    LogTracer::init().expect("Failed to set logger");
+
     // Printing all log spans at info level or above
     // If RUST_LOG environment variable is not set
     let env_filter = EnvFilter::try_from_default_env()
