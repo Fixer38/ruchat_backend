@@ -9,7 +9,7 @@ use crate::telemetry::{get_subscriber, init_subscriber};
 // Create subscriber inside the once_cell
 // Ensure it's only initialized once for all the tests
 static TRACING: Lazy<()> = Lazy::new(|| {
-    let subscriber = get_subscriber("test".into(), "debug".into());
+    let subscriber = get_subscriber("test".into(), "debug".into(), std::io::stdout);
     init_subscriber(subscriber);
 });
 

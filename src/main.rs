@@ -6,7 +6,7 @@ use ruchat_backend::telemetry::{get_subscriber, init_subscriber};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let subscriber = get_subscriber("ruchat_backend".into(), "info".into());
+    let subscriber = get_subscriber("ruchat_backend".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
     // Make sure to panic if error while reading conf
