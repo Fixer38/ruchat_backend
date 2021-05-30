@@ -9,8 +9,21 @@ use crate::telemetry::{get_subscriber, init_subscriber};
 // Create subscriber inside the once_cell
 // Ensure it's only initialized once for all the tests
 static TRACING: Lazy<()> = Lazy::new(|| {
-    let subscriber = get_subscriber("test".into(), "debug".into(), std::io::stdout);
-    init_subscriber(subscriber);
+    let default_filter_level = "info".to_string();
+    let subscriber_name = "test".to_string();
+
+
+    // If env variable TEST_LOG is set -> logs printed to stdout
+    // if the variable isn't set the logs are dumped with the help of std::io::sink
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber("test".into(), "debug".into(), std::io::stdout);
+        init_subscriber(subscriber);
+    }
+    else {
+        let subscriber = get_subscriber("test".into(), "debug".into(), std::io::sink);
+        init_subscriber(subscriber);
+    }
+
 });
 
 pub struct TestApp {
