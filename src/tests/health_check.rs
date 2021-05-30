@@ -3,6 +3,15 @@ use crate::run::run;
 use sqlx::{PgPool, PgConnection, Connection, Executor};
 use crate::configuration::{get_config, DatabaseSettings};
 use std::collections::HashMap;
+use once_cell::sync::Lazy;
+use crate::telemetry::{get_subscriber, init_subscriber};
+
+// Create subscriber inside the once_cell
+// Ensure it's only initialized once for all the tests
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let subscriber = get_subscriber("test".into(), "debug".into());
+    init_subscriber(subscriber);
+});
 
 pub struct TestApp {
     pub address: String,
@@ -10,6 +19,9 @@ pub struct TestApp {
 }
 
 async fn spawn_app() -> TestApp {
+    // First time we initialize the subscriber
+    Lazy::force(&TRACING);
+
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
