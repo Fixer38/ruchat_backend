@@ -36,13 +36,13 @@ pub async fn insert_server(form: &FormData, pool: &PgPool) -> Result<(), sqlx::E
     form.name,
     Utc::now()
     )
-        .execute(pool.as_ref())
-        .instrument(query_span)
+        .execute(pool)
         .await
         .map_err(|e| {
             // Using :? Debug format for deeper error messages
             tracing::error!("Failed to execute query: {:?}", e);
-            error::ErrorInternalServerError("Error From Server when executing Request")
+            e
+            //error::ErrorInternalServerError("Error From Server when executing Request")
         })?;
     Ok(())
 }
