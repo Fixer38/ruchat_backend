@@ -4,14 +4,14 @@ use std::net::TcpListener;
 use sqlx::postgres::PgPool;
 use crate::routes::health_check::health_check;
 use crate::routes::server::create;
-use actix_web::middleware::Logger;
+use tracing_actix_web::TracingLogger;
 
 pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let server = HttpServer::new(move || {
         App::new()
             // Middleware Logger added
-            .wrap(Logger::default())
+            .wrap(TracingLogger)
             .route("/health_check", web::get().to(health_check))
             .route("/server/create", web::post().to(create))
             .app_data(db_pool.clone())
