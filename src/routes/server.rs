@@ -23,8 +23,11 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
     Ok(HttpResponse::Ok().finish())
 }
 
+#[tracing::instrument(
+    name = "Saving new Server details in the database",
+    skip(form, pool)
+)]
 pub async fn insert_server(form: &FormData, pool: &PgPool) -> Result<(), sqlx::Error> {
-    let query_span = tracing::info_span!("Adding new Server to the database");
     sqlx::query!(
     r#"
     INSERT INTO servers (name, created_at)
