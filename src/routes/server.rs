@@ -14,7 +14,6 @@ pub struct FormData {
     name = "Creating a new Server",
     skip(form, pool),
     fields(
-        request_id = %Uuid::new_v4(),
         name = %form.name
     )
 )]
