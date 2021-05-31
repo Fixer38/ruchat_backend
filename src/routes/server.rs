@@ -19,6 +19,11 @@ pub struct FormData {
     )
 )]
 pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    insert_server(&form, &pool);
+    Ok(HttpResponse::Ok().finish())
+}
+
+pub async fn insert_server(form: &FormData, pool: &PgPool) -> Result<(), sqlx::Error> {
     let query_span = tracing::info_span!("Adding new Server to the database");
     sqlx::query!(
     r#"
@@ -36,5 +41,5 @@ pub async fn create(form: web::Json<FormData>, pool: web::Data<PgPool>) -> Resul
             tracing::error!("Failed to execute query: {:?}", e);
             error::ErrorInternalServerError("Error From Server when executing Request")
         })?;
-    Ok(HttpResponse::Ok().finish())
+    Ok(())
 }
