@@ -1,0 +1,16 @@
+{
+  "db": "PostgreSQL",
+  "52542db62007987c42595c84dc765b6219827b7aef37b31715e722dcc123d91a": {
+    "query": "\n    INSERT INTO servers (name, created_at)\n    VALUES ($1, $2)\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Timestamptz"
+        ]
+      },
+      "nullable": []
+    }
+  }
+}
